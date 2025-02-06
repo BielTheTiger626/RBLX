@@ -1,78 +1,77 @@
--- Serviços necessários
+# Improved Automatic Shooting Script
+
+-- Required Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
--- Variáveis globais
+
+-- Global Variables
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
 local teamColor = player.TeamColor
-local isEnabled = false -- Variável para controlar se o script está ativado ou não
--- Função para verificar se o alvo é um inimigo
+local isEnabled = false -- Variable to control if the script is enabled or not
+
+-- Function to check if the target is an enemy
 local function isEnemy(target)
-local targetPlayer = Players:GetPlayerFromCharacter(target)
-if targetPlayer and targetPlayer.TeamColor ~= teamColor then
-return true
+    local targetPlayer = Players:GetPlayerFromCharacter(target)
+    return targetPlayer and targetPlayer.TeamColor ~= teamColor
 end
-return false
-end
--- Função para atirar
+
+-- Function to shoot
 local function onShoot()
-if not isEnabled then return end -- Se o script estiver desativado, não faz nada
-local target = mouse.Target
-if target and target.Parent then
-local character = target.Parent
-if character:FindFirstChild("Humanoid") and character:FindFirstChild("Head") then
-if isEnemy(character) then
--- Ajusta o tiro para acertar na cabeça
-local head = character:FindFirstChild("Head")
-if head then
--- Simula o tiro acertando a cabeça
-local hitPosition = head.Position
-print("Tiro acertou na cabeça do inimigo em:", hitPosition)
--- Aqui você pode adicionar efeitos visuais, sonoros ou dano ao inimigo
--- Exemplo: Causar dano ao Humanoid do inimigo
-local humanoid = character:FindFirstChild("Humanoid")
-if humanoid then
-humanoid:TakeDamage(50) -- Causa 50 de dano
+    if not isEnabled then return end -- If the script is disabled, do nothing
+    local target = mouse.Target
+    if target and target.Parent then
+        local character = target.Parent
+        if character:FindFirstChild("Humanoid") and character:FindFirstChild("Head") then
+            if isEnemy(character) then
+                -- Adjust the shot to hit the head
+                local head = character:FindFirstChild("Head")
+                if head then
+                    -- Simulate the shot hitting the head
+                    local hitPosition = head.Position
+                    print("Shot hit enemy's head at:", hitPosition)
+                    -- Here you can add visual effects, sounds, or damage to the enemy
+                    local humanoid = character:FindFirstChild("Humanoid")
+                    if humanoid then
+                        humanoid:TakeDamage(50) -- Inflict 50 damage
+                    end
+                end
+            else
+                print("Ally or non-enemy object, shot ignored.")
+            end
+        end
+    end
 end
-end
-else
-print("Aliado ou objeto não inimigo, tiro ignorado.")
-end
-end
-end
-end
--- Função para ativar/desativar o script
+
+-- Function to toggle the script
 local function toggleScript()
-isEnabled = not isEnabled -- Alterna entre true e false
-if isEnabled then
-print("Script de tiro automático ATIVADO.")
-else
-print("Script de tiro automático DESATIVADO.")
+    isEnabled = not isEnabled -- Toggle between true and false
+    print("Automatic shooting script " .. (isEnabled and "ENABLED." or "DISABLED."))
 end
-end
--- Conecta o evento de tiro ao clique do mouse
+
+-- Connect the shooting event to mouse click
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-if input.UserInputType == Enum.UserInputType.MouseButton1 and not gameProcessed
-then
-onShoot()
-end
--- Tecla "E" para ativar/desativar o script
-if input.KeyCode == Enum.KeyCode.E then
-toggleScript()
-end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 and not gameProcessed then
+        onShoot()
+    end
+    -- Key "E" to toggle the script
+    if input.KeyCode == Enum.KeyCode.E then
+        toggleScript()
+    end
 end)
--- Loop para verificar se o mouse está sobre um inimigo (opcional)
+
+-- Loop to check if the mouse is over an enemy (optional)
 RunService.RenderStepped:Connect(function()
-if not isEnabled then return end -- Se o script estiver desativado, não faz nada
-local target = mouse.Target
-if target and target.Parent then
-local character = target.Parent
-if character:FindFirstChild("Humanoid") and character:FindFirstChild("Head") then
-if isEnemy(character) then
--- Destaca o inimigo (opcional)
-print("Mouse sobre um inimigo:", character.Name)
-end
-end
-end
+    if not isEnabled then return end -- If the script is disabled, do nothing
+    local target = mouse.Target
+    if target and target.Parent then
+        local character = target.Parent
+        if character:FindFirstChild("Humanoid") and character:FindFirstChild("Head") then
+            if isEnemy(character) then
+                -- Highlight the enemy (optional)
+                print("Mouse over an enemy:", character.Name)
+            end
+        end
+    end
 end)
