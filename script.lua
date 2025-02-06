@@ -1,43 +1,62 @@
+-- Serviços necessários
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local Mouse = LocalPlayer:GetMouse()
-
-local function hitEnemyHead()
-    local target = Mouse.Target
-    if target and target.Parent then
-        local targetPlayer = Players:GetPlayerFromCharacter(target.Parent)
-        if targetPlayer and targetPlayer.Team ~= LocalPlayer.Team then
-            print("Atingindo a cabeça do inimigo:", targetPlayer.Name)
-            -- Adicione aqui a lógica para acertar a cabeça do inimigo
-        end
-    end
+-- Variáveis globais
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+local teamColor = player.TeamColor
+-- Função para verificar se o alvo é um inimigo
+local function isEnemy(target)
+local targetPlayer = Players:GetPlayerFromCharacter(target)
+if targetPlayer and targetPlayer.TeamColor ~= teamColor then
+return true
 end
-
-local function seeEnemiesBehindWall()
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Team ~= LocalPlayer.Team then
-            print("Inimigo detectado:", player.Name)
-            -- Adicione aqui a lógica para tornar os inimigos visíveis
-        end
-    end
+return false
 end
-
-local hitActive = false
-local seeActive = false
-
+-- Função para atirar
+local function onShoot()
+local target = mouse.Target
+if target and target.Parent then
+local character = target.Parent
+if character:FindFirstChild("Humanoid") and character:FindFirstChild("Head") then
+if isEnemy(character) then
+-- Ajusta o tiro para acertar na cabeça
+local head = character:FindFirstChild("Head")
+if head then
+-- Simula o tiro acertando a cabeça
+local hitPosition = head.Position
+print("Tiro acertou na cabeça do inimigo em:", hitPosition)
+-- Aqui você pode adicionar efeitos visuais, sonoros ou dano ao inimigo
+-- Exemplo: Causar dano ao Humanoid do inimigo
+local humanoid = character:FindFirstChild("Humanoid")
+if humanoid then
+humanoid:TakeDamage(50) -- Causa 50 de dano
+end
+end
+else
+print("Aliado ou objeto não inimigo, tiro ignorado.")
+end
+end
+end
+end
+-- Conecta o evento de tiro ao clique do mouse
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-
-    if input.KeyCode == Enum.KeyCode.O then
-        hitActive = not hitActive
-        if hitActive then
-            hitEnemyHead()
-        end
-    elseif input.KeyCode == Enum.KeyCode.Ç then
-        seeActive = not seeActive
-        if seeActive then
-            seeEnemiesBehindWall()
-        end
-    end
+if input.UserInputType == Enum.UserInputType.MouseButton1 and not gameProcessed
+then
+onShoot()
+end
+end)
+-- Loop para verificar se o mouse está sobre um inimigo (opcional)
+RunService.RenderStepped:Connect(function()
+local target = mouse.Target
+if target and target.Parent then
+local character = target.Parent
+if character:FindFirstChild("Humanoid") and character:FindFirstChild("Head") then
+if isEnemy(character) then
+-- Destaca o inimigo (opcional)
+print("Mouse sobre um inimigo:", character.Name)
+end
+end
+end
 end)
