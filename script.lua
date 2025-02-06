@@ -6,6 +6,7 @@ local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
 local teamColor = player.TeamColor
+local isEnabled = false -- Variável para controlar se o script está ativado ou não
 -- Função para verificar se o alvo é um inimigo
 local function isEnemy(target)
 local targetPlayer = Players:GetPlayerFromCharacter(target)
@@ -16,6 +17,7 @@ return false
 end
 -- Função para atirar
 local function onShoot()
+if not isEnabled then return end -- Se o script estiver desativado, não faz nada
 local target = mouse.Target
 if target and target.Parent then
 local character = target.Parent
@@ -40,15 +42,29 @@ end
 end
 end
 end
+-- Função para ativar/desativar o script
+local function toggleScript()
+isEnabled = not isEnabled -- Alterna entre true e false
+if isEnabled then
+print("Script de tiro automático ATIVADO.")
+else
+print("Script de tiro automático DESATIVADO.")
+end
+end
 -- Conecta o evento de tiro ao clique do mouse
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 if input.UserInputType == Enum.UserInputType.MouseButton1 and not gameProcessed
 then
 onShoot()
 end
+-- Tecla "E" para ativar/desativar o script
+if input.KeyCode == Enum.KeyCode.E then
+toggleScript()
+end
 end)
 -- Loop para verificar se o mouse está sobre um inimigo (opcional)
 RunService.RenderStepped:Connect(function()
+if not isEnabled then return end -- Se o script estiver desativado, não faz nada
 local target = mouse.Target
 if target and target.Parent then
 local character = target.Parent
